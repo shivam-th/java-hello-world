@@ -12,6 +12,7 @@ env:
     ECR_REGISTRY: 471112745159.dkr.ecr.us-east-1.amazonaws.com
     ECR_REPOSITORY: my-java-app
     CLUSTER_NAME: my-cluster
+    IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   deploy:
@@ -38,9 +39,9 @@ jobs:
     # Build the Docker image and push it to ECR
     - name: Build and Push Docker image
       run: |
-        IMAGE_TAG=$ECR_REGISTRY/$ECR_REPOSITORY:latest
-        docker build -t $IMAGE_TAG .
-        docker push $IMAGE_TAG
+        ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build -t $ECR_URI .
+        docker push $ECR_URI
 
     # Update kubeconfig to interact with the EKS cluster
     - name: Update kubeconfig
@@ -49,17 +50,17 @@ jobs:
 
     
     # Deploy the application to EKS using Kubernetes manifests
-
     - name: Deploy to EKS
       run: |
-        kubectl apply -f k8s/deployment.yaml
+        ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        sed "s|<ECR_IMAGE_URI>|$ECR_URI|g" k8s/deployment.yaml| kubectl apply -f -
         kubectl apply -f k8s/service.yaml
         
     # Fetch External LoadBalancer IP
     - name: Get LoadBalancer IP
       run: |
         echo "Waiting for External LoadBalancer External IP..."
-        sleep 60
+        sleep 10
         kubectl get svc java-app-service
         kubectl get pods 
 
