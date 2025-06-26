@@ -28,7 +28,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # Configure AWS credentials using GitHub Secrets
+    - name: Install kubectl
+      run: |
+        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x kubectl
+        sudo mv kubectl /usr/local/bin/
+        kubectl version --client
+      
+
+      # Configure AWS credentials using GitHub Secrets
     - name: Configure AWS credentials using OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
