@@ -52,6 +52,11 @@ jobs:
       run: |
         aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
 
+    - name: Debug kubeconfig
+      run: |
+        cat ~/.kube/config
+
+
     - name: Verify kubeconfig
       run: |
         kubectl config current-context
