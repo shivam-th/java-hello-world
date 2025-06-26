@@ -27,7 +27,7 @@ jobs:
     - name: Configure AWS credentials using OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
+        role-to-assume: arn:aws:iam::47111274519:role/GitHubActionsOIDCRole
         aws-region: ${{ env.AWS_REGION }}
 
     # Log in to Amazon ECR to allow pushing Docker images
