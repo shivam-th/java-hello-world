@@ -56,10 +56,10 @@ jobs:
         sed "s|<ECR_IMAGE_URI>|$ECR_URI|g" k8s/deployment.yaml| kubectl apply -f -
         kubectl apply -f k8s/service.yaml
         
-    # Fetch External LoadBalancer IP
-    - name: Get LoadBalancer IP
+    # Fetch Pod status and LoadBalancer IP
+    - name: Fetch details
       run: |
-        echo "Waiting for External LoadBalancer External IP..."
+        echo "Fetching pod details.."
         sleep 10
         kubectl get svc java-app-service
         kubectl get pods 
