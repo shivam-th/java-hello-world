@@ -14,6 +14,11 @@ env:
     CLUSTER_NAME: my-cluster
     IMAGE_TAG: ${{ github.sha }}
 
+# for OIDC
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,7 +32,7 @@ jobs:
     - name: Configure AWS credentials using OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::47111274519:role/GitHubActionsOIDCRole
+        role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
         aws-region: ${{ env.AWS_REGION }}
 
     # Log in to Amazon ECR to allow pushing Docker images
