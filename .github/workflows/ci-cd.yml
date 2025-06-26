@@ -50,7 +50,7 @@ jobs:
     # Update kubeconfig to interact with the EKS cluster
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --name $CLUSTER_NAME
+        aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
 
     
     # Deploy the application to EKS using Kubernetes manifests
