@@ -6,14 +6,6 @@ on:
   push:
     branches: [main]
 
-# Define environment variables     
-env:
-    AWS_REGION: us-east-1
-    ECR_REGISTRY: 471112745159.dkr.ecr.us-east-1.amazonaws.com
-    ECR_REPOSITORY: my-java-app
-    CLUSTER_NAME: my-cluster
-    IMAGE_TAG: ${{ github.sha }}
-
 # for OIDC
 permissions:
   id-token: write
@@ -22,6 +14,11 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'prod' }}
+
+    # Define environment variables
+    env:
+      IMAGE_TAG: ${{ github.sha }}
 
     steps:
     # Checkout the source code from the repository
@@ -34,14 +31,13 @@ jobs:
         chmod +x kubectl
         sudo mv kubectl /usr/local/bin/
         kubectl version --client
-      
 
       # Configure AWS credentials using GitHub Secrets
     - name: Configure AWS credentials using OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
     # Log in to Amazon ECR to allow pushing Docker images
     - name: Login to Amazon ECR
@@ -51,7 +47,7 @@ jobs:
     # Build the Docker image and push it to ECR
     - name: Build and Push Docker image
       run: |
-        ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        ECR_URI==${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
         docker build -t $ECR_URI .
         docker push $ECR_URI
 
@@ -63,7 +59,7 @@ jobs:
 # Deploy the application to EKS using Kubernetes manifests
     - name: Deploy to EKS
       run: |
-        ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        ECR_URI==${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
         sed "s|<ECR_IMAGE_URI>|$ECR_URI|g" k8s/deployment.yaml| kubectl apply -f -
         kubectl apply -f k8s/service.yaml
 
