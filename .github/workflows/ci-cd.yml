@@ -63,8 +63,6 @@ jobs:
     - name: Debug kubeconfig
       run: |
         cat ~/.kube/config
-        kubectl config get-contexts
-        kubectl config current-context
         aws sts get-caller-identity
         kubectl get pods
 
