@@ -22,7 +22,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: prod
+    #environment: prod
 
     steps:
       # Checkout the source code from the repository
@@ -41,7 +41,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: us-east-1
 
       # Log in to Amazon ECR to allow pushing Docker images
       - name: Login to Amazon ECR
