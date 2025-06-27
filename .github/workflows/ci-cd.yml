@@ -3,11 +3,13 @@ name: CI/CD Pipeline
 
 # Trigger the workflow on push to the main branch
 on:
-  push:
-    branches:
-      - main
-      - preprod
-      - dev
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'dev'
+
 
 # for OIDC
 permissions:
@@ -17,7 +19,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.ref_name }}
+    environment: ${{ github.event.inputs.environment || 'prod' }}
 
     # Define environment variables
     env:
