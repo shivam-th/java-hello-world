@@ -37,7 +37,7 @@ jobs:
         kubectl version --client
 
     - name: Print secret
-      run: echo "${{ secrets.AWS_REGION }}"
+      run: echo "${{ secrets.AWS_REGION }}" | wc
 
 
     # Configure AWS credentials using GitHub Secrets
