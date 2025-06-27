@@ -65,6 +65,7 @@ jobs:
         cat ~/.kube/config
         kubectl config get-contexts
         kubectl config current-context
+        aws sts get-caller-identity
         kubectl get pods
 
 # Deploy the application to EKS using Kubernetes manifests
@@ -74,11 +75,6 @@ jobs:
         sed "s|<ECR_IMAGE_URI>|$ECR_URI|g" k8s/deployment.yaml| kubectl apply -f -
         kubectl apply -f k8s/service.yaml
 
-    - name: Verify kubeconfig
-      run: |
-        kubectl config current-context
-        kubectl get nodes
-    
 
     # Fetch Pod status and LoadBalancer IP
     - name: Fetch details
