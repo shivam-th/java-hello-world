@@ -60,9 +60,11 @@ jobs:
       run: |
         aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --role-arn arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
 
-    - name: Test kubectl access
+    - name: Debug kubeconfig
       run: |
-        kubectl get nodes
+        cat ~/.kube/config
+        kubectl config get-contexts
+        kubectl config current-context
 
 # Deploy the application to EKS using Kubernetes manifests
     - name: Deploy to EKS
