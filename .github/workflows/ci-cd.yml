@@ -3,8 +3,10 @@ name: CI/CD Pipeline
 
 # Trigger the workflow on push to the main branch
 on:
-  push:
-    branches: [main]
+  workflow_dispatch:
+
+  #push:
+    #branches: [main]
 
 # Define environment variables
 env:
