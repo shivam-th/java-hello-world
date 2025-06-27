@@ -58,7 +58,7 @@ jobs:
     # Update kubeconfig to interact with the EKS cluster
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+        aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --role-arn arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
 
     - name: Test kubectl access
       run: |
