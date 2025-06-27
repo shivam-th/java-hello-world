@@ -38,7 +38,7 @@ jobs:
 
 
     - name: Print secret
-      run: echo "${{ secrets.AWS_REGION }}" | wc -c
+      run: echo "${{ secrets.CLUSTER_NAME }}" | wc -c
 
       # Configure AWS credentials using GitHub Secrets
     - name: Configure AWS credentials using OIDC
