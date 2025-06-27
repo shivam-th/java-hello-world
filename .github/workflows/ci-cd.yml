@@ -8,7 +8,7 @@ on:
 
 # Define environment variables
 env:
-    AWS_REGION: us-east-1
+    #AWS_REGION: us-east-1
     ECR_REGISTRY: 471112745159.dkr.ecr.us-east-1.amazonaws.com
     ECR_REPOSITORY: my-java-app
     CLUSTER_NAME: my-cluster
@@ -22,8 +22,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: prod
+    environment: prod
 
     steps:
     # Checkout the source code from the repository
@@ -38,7 +37,7 @@ jobs:
         kubectl version --client
 
     - name: Print secret
-      run: echo "${{ vars.AWS_REGION }}"
+      run: echo "${{ secrets.AWS_REGION }}"
 
 
     # Configure AWS credentials using GitHub Secrets
