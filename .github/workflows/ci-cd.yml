@@ -8,11 +8,11 @@ on:
 
 # Define environment variables
 env:
-    #AWS_REGION: us-east-1
-    ECR_REGISTRY: 471112745159.dkr.ecr.us-east-1.amazonaws.com
-    ECR_REPOSITORY: my-java-app
-    CLUSTER_NAME: my-cluster
-    IMAGE_TAG: ${{ github.sha }}
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 471112745159.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPOSITORY: my-java-app
+  CLUSTER_NAME: my-cluster
+  IMAGE_TAG: ${{ github.sha }}
 
 # for OIDC
 permissions:
@@ -22,61 +22,56 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: prod
 
     steps:
-    # Checkout the source code from the repository
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # Checkout the source code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install kubectl
-      run: |
-        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-        chmod +x kubectl
-        sudo mv kubectl /usr/local/bin/
-        kubectl version --client
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version --client
 
-    - name: Print secret
-      run: echo "${{ secrets.AWS_REGION }}" | wc
+      # Configure AWS credentials using GitHub Secrets
+      - name: Configure AWS credentials using OIDC
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
+          aws-region: $AWS_REGION
 
+      # Log in to Amazon ECR to allow pushing Docker images
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-    # Configure AWS credentials using GitHub Secrets
-    - name: Configure AWS credentials using OIDC
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
-        aws-region: ${{ secrets.AWS_REGION }}
+      # Build the Docker image and push it to ECR
+      - name: Build and Push Docker image
+        run: |
+          ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker build -t $ECR_URI .
+          docker push $ECR_URI
 
-    # Log in to Amazon ECR to allow pushing Docker images
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v2
+      # Update kubeconfig to interact with the EKS cluster
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION 
 
-    # Build the Docker image and push it to ECR
-    - name: Build and Push Docker image
-      run: |
-        ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        docker build -t $ECR_URI .
-        docker push $ECR_URI
+      # Deploy the application to EKS using Kubernetes manifests
+      - name: Deploy to EKS
+        run: |
+          ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          sed "s|<ECR_IMAGE_URI>|$ECR_URI|g" k8s/deployment.yaml| kubectl apply -f -
+          kubectl apply -f k8s/service.yaml
+      
 
-    # Update kubeconfig to interact with the EKS cluster
-    - name: Update kubeconfig
-      run: |
-        aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION 
-
-# Deploy the application to EKS using Kubernetes manifests
-    - name: Deploy to EKS
-      run: |
-        ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-        sed "s|<ECR_IMAGE_URI>|$ECR_URI|g" k8s/deployment.yaml| kubectl apply -f -
-        kubectl apply -f k8s/service.yaml
-
-
-    # Fetch Pod status and LoadBalancer IP
-    - name: Fetch details
-      run: |
-        echo "Fetching pod details.."
-        sleep 10
-        kubectl get svc java-app-service
-        kubectl get pods 
+      # Fetch Pod status and LoadBalancer IP
+      - name: Fetch details
+        run: |
+          echo "Fetching pod details.."
+          sleep 10
+          kubectl get svc java-app-service
+          kubectl get pods 
 
