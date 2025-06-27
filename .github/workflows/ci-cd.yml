@@ -65,6 +65,7 @@ jobs:
         cat ~/.kube/config
         kubectl config get-contexts
         kubectl config current-context
+        kubectl get pods
 
 # Deploy the application to EKS using Kubernetes manifests
     - name: Deploy to EKS
