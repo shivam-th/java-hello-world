@@ -42,37 +42,3 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
           aws-region: us-east-1
-
-      # Log in to Amazon ECR to allow pushing Docker images
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      # Build the Docker image and push it to ECR
-      - name: Build and Push Docker image
-        run: |
-          ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker build -t $ECR_URI .
-          docker push $ECR_URI
-
-      # Update kubeconfig to interact with the EKS cluster
-      - name: Update kubeconfig
-        run: |
-          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION 
-
-      # Deploy the application to EKS using Kubernetes manifests
-      - name: Deploy to EKS
-        run: |
-          ECR_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          sed "s|<ECR_IMAGE_URI>|$ECR_URI|g" k8s/deployment.yaml| kubectl apply -f -
-          kubectl apply -f k8s/service.yaml
-      
-
-      # Fetch Pod status and LoadBalancer IP
-      - name: Fetch details
-        run: |
-          echo "Fetching pod details.."
-          sleep 10
-          kubectl get svc java-app-service
-          kubectl get pods 
-
