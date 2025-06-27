@@ -38,7 +38,7 @@ jobs:
         kubectl version --client
 
     - name: Print secret
-      run: echo "${{ env.AWS_REGION }}"
+      run: echo "${{ var.AWS_REGION }}"
 
 
     # Configure AWS credentials using GitHub Secrets
@@ -46,7 +46,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
-        aws-region: ${{ env.AWS_REGION }}
+        aws-region: ${{ var.AWS_REGION }}
 
     # Log in to Amazon ECR to allow pushing Docker images
     - name: Login to Amazon ECR
