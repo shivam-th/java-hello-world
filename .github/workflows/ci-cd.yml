@@ -3,10 +3,8 @@ name: CI/CD Pipeline
 
 # Trigger the workflow on push to the main branch
 on:
-  workflow_dispatch:
-
-  #push:
-    #branches: [main]
+  push:
+    branches: [main]
 
 # Define environment variables
 env:
@@ -47,7 +45,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v2
       with:
         role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
-        aws-region: ${{ vars.AWS_REGION }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
     # Log in to Amazon ECR to allow pushing Docker images
     - name: Login to Amazon ECR
