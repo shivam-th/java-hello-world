@@ -22,7 +22,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: prod
+    environment: dev
 
     steps:
       # Checkout the source code from the repository
