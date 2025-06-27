@@ -22,7 +22,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    environment: dev
 
     steps:
       # Checkout the source code from the repository
@@ -41,4 +41,4 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::471112745159:role/GitHubActionsOIDCRole
-          aws-region: us-east-1
+
